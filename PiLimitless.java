@@ -10,9 +10,13 @@ public class PiLimitless {
 
         for (long term=1 ; term<iteration;term++)
         {
-            FillPiWithoutlimit(term, precision);
+            if(FillPiWithoutlimit(term, precision)==1) {
+                System.out.println("Precision reached at Iteration "+ term);
+                break;}
+            //CorrectPiSeries(precision);
             if(term%1000000==0)
             {
+                CorrectPiSeries(precision);
                 System.out.print("Value of Pi for term:" +term +"  Is : " );
                 for (int j=0;j<precision;j++)
                     System.out.print(PiSeries[j]);
@@ -21,10 +25,31 @@ public class PiLimitless {
         }
 
     }
-    private static void FillPiWithoutlimit(long term, long precision)
+
+    private static void CorrectPiSeries(long precision)
+    {
+        for(int j=1;j<precision;j++) {
+            while (PiSeries[j] < 0 || PiSeries[j] > 9) {
+                if (PiSeries[j] < 0) {
+                    PiSeries[j] = PiSeries[j] + 10;
+                    PiSeries[j - 1] = PiSeries[j - 1] - 1;
+
+                }
+                if (PiSeries[j] > 9) {
+                    PiSeries[j - 1] = PiSeries[j - 1] + 1;
+                    PiSeries[j] = PiSeries[j] - 10;
+
+                }
+                j--;
+            }
+        }
+
+    }
+    private static int  FillPiWithoutlimit(long term, long precision)
     {
 
         int sign=1;
+        int written =0;
         if (term%2 ==0) {
             sign = 1;
         } else
@@ -50,22 +75,24 @@ public class PiLimitless {
             {
                 divident = numerator.divide(denominator);
                 // System.out.print(divident);
-                PiSeries[i] = PiSeries[i]+ sign* divident.intValue();
+                if(!divident.equals(BigInteger.valueOf(0)))
+                {
+                    PiSeries[i] = PiSeries[i]+ sign* divident.intValue();
+                    written =1;
+                }
+
                 numerator=numerator.subtract(denominator.multiply(divident));
                 numerator=numerator.multiply(BigInteger.valueOf(10));
                 if(numerator.equals(BigInteger.valueOf(0))) break;
 
-                if(PiSeries[i]<0  ) {
-                    PiSeries[i]=PiSeries[i]+10;
-                    PiSeries[i-1]=PiSeries[i-1]-1;
-                }
-                if(PiSeries[i]>9  ) {
-                    PiSeries[i-1]=PiSeries[i-1]+1;
-                    PiSeries[i]=PiSeries[i]-10;
-                }
+            }
 
+            if(written==0)
+            {
+                return 1;
             }
         }
+        return 0;
     }
 
 
@@ -78,20 +105,22 @@ public class PiLimitless {
         // For comparison
         String PiValue ="3.14159265358979323846264338327950288419716939937510582097494459230781640628620";
 
-        System.out.println("Enter precision");
+        System.out.println("Enter precision - Please be aware precision above 22 will take million+ of iterations");
         // String input
         numb = myObj.nextInt();
+        //Increasing by 2 to ensure correct digits till numb-2
+        numb=numb+2;
 
+        //System.out.println("Enter Iteration ");
 
-        System.out.println("Enter Iteration: Max limit 100 Crore , crashed on 1000 crore ");
-
-        // String input
-        iteration = myObj.nextInt();
+        // String input - By default iterating till infinity - crore crore iterations
+        //iteration = myObj.nextLong();
+        iteration = 100000000000000;
         PiSeries = new int[numb];
 
         startTime = System.nanoTime();
         LimitlessPiUsingNilkantha(numb,iteration);
-
+        CorrectPiSeries(numb);
         System.out.println("Final value of Pi");
         for (int i=0;i<numb;i++)
             System.out.print(PiSeries[i]);
@@ -106,4 +135,7 @@ public class PiLimitless {
 
 
 
+//Changes proposed
+//1. Display number in decimal
+ //2.Display till precision calculated
 
